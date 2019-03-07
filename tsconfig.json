@@ -7,12 +7,7 @@
     "strict": true,
     "resolveJsonModule": true,
     "noImplicitAny": true,
-    "paths": {
-      "*": ["./types/*"],
-    },
-    "baseUrl": ".",
-    "esModuleInterop": true
   },
-  "include": ["src"],
+  "include": ["src", "external"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }

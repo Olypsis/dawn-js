@@ -1,4 +1,4 @@
-const { Dawn } = require('../dist');
+const { Dawn } = require('../dist/src');
 
 const dawnJS = new Dawn();
 dawnJS.connect();
