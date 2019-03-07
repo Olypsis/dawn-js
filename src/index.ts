@@ -1,4 +1,4 @@
-import StatusJS = require('status-js-api');
+import {StatusJS} from '../external/status-js-api';
 
 export class Dawn {
   public statusJS: StatusJS;
