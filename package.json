@@ -18,7 +18,7 @@
         "docs": "typedoc --out docs src",
         "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
         "postinstall": "yarn build",
-        "clean": "rimraf dist && rimraf node_modules && yarn"
+        "clean": "rimraf dist"
     },
     "devDependencies": {
         "@babel/runtime-corejs2": "^7.3.4",
