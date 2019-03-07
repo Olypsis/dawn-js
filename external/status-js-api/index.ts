@@ -1,4 +1,4 @@
-export interface StatusJS {
+export interface IStatusJS {
   //   Public Methods
   connect(url: string, privateKey?: string): void;
   connectToProvider(provider: any, privateKey: any): void;
@@ -21,8 +21,8 @@ export interface StatusJS {
   getUserName(): string;
 }
 
-export interface StatusJSConstructor {
-  new (): StatusJS;
+export interface IStatusJSConstructor {
+  new (): IStatusJS;
 }
 
-export const StatusJS: StatusJSConstructor = require('status-js-api');
+export const StatusJS: IStatusJSConstructor = require('status-js-api');

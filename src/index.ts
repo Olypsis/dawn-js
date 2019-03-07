@@ -1,7 +1,7 @@
-import {StatusJS} from '../external/status-js-api';
+import { StatusJS, IStatusJS } from '../external/status-js-api';
 
 export class Dawn {
-  public statusJS: StatusJS;
+  public statusJS: IStatusJS;
   public statusPublicKey?: string;
   public statusUsername?: string;
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -23,16 +23,28 @@ export class Dawn {
       this.statusPublicKey = await this.statusJS.getPublicKey();
       this.statusUsername = await this.statusJS.getUserName();
       console.log(
-        `Connected to Status as ${this.statusUsername}. Public Key: ${
+        `Connected to Status as ${this.statusUsername}. \nPublic Key: ${
           this.statusPublicKey
         }`,
       );
 
+      // Listen For Messages
+      await this.createStatusListener();
       return true;
     } catch (err) {
       // Something failed during connection
       console.log(err.message);
       return false;
     }
+  }
+
+  private async createStatusListener() {
+    console.log("Listening for messages...");
+    await this.statusJS.onUserMessage((err: any, data: any) => {
+      if (data) {
+        const payload = JSON.parse(data.payload);
+        console.log(`Payload Received! Payload: ${JSON.stringify(payload)}`);
+      }
+    });
   }
 }
