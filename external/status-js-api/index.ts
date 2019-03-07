@@ -1,4 +1,3 @@
-
 export interface StatusJS {
   //   Public Methods
   connect(url: string, privateKey?: string): void;
