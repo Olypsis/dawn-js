@@ -4,10 +4,12 @@ export class Dawn {
   public statusJS: IStatusJS;
   public statusPublicKey?: string;
   public statusUsername?: string;
+  public isListeningWithStatus: boolean;
   private testStatusProvider: string = 'http://35.188.163.32:8545';
 
   constructor() {
     this.statusJS = new StatusJS();
+    this.isListeningWithStatus = false;
     console.log('Dawn and Status initialized');
   }
 
@@ -30,6 +32,7 @@ export class Dawn {
 
       // Listen For Messages
       await this.createStatusListener();
+
       return true;
     } catch (err) {
       // Something failed during connection
@@ -38,13 +41,18 @@ export class Dawn {
     }
   }
 
-  private async createStatusListener() {
-    console.log("Listening for messages...");
-    await this.statusJS.onUserMessage((err: any, data: any) => {
-      if (data) {
-        const payload = JSON.parse(data.payload);
-        console.log(`Payload Received! Payload: ${JSON.stringify(payload)}`);
-      }
-    });
+  private async createStatusListener(): Promise<void> {
+    try {
+      console.log('Listening for messages...');
+      this.isListeningWithStatus = true;
+      await this.statusJS.onUserMessage((err: any, data: any) => {
+        if (data) {
+          const payload = JSON.parse(data.payload);
+          console.log(`Payload Received! Payload: ${JSON.stringify(payload)}`);
+        }
+      });
+    } catch (err) {
+      console.log(err.message);
+    }
   }
 }

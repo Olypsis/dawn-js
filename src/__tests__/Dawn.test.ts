@@ -5,4 +5,5 @@ test('Dawn Connection To Status', async () => {
   expect(await dawnJS.connect()).toEqual(true);
   expect(typeof dawnJS.statusPublicKey).toBe('string');
   expect(typeof dawnJS.statusUsername).toBe('string');
+  expect(dawnJS.isListeningWithStatus).toBe(true);
 });
