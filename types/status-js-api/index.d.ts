@@ -1,4 +1,3 @@
-declare module 'status-js-api';
 declare class StatusJS {
   private channels: any;
   private contacts: any;
@@ -28,3 +27,6 @@ declare class StatusJS {
   public getPublicKey(): string;
   public getUserName(): string;
 }
+
+export = StatusJS;
+

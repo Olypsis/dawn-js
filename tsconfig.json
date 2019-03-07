@@ -6,7 +6,12 @@
     "outDir": "./dist",
     "strict": true,
     "resolveJsonModule": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    "paths": {
+      "*": ["./types/*"],
+    },
+    "baseUrl": ".",
+    "esModuleInterop": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
