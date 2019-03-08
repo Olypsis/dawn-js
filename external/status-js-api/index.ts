@@ -1,4 +1,6 @@
 export interface IStatusJS {
+  // Other
+  mailservers: any;
   //   Public Methods
   connect(url: string, privateKey?: string): void;
   connectToProvider(provider: any, privateKey: any): void;
@@ -14,7 +16,7 @@ export interface IStatusJS {
   sendGroupMessage(channelName: string, msg: string, cb?: any): void;
   sendJsonMessage(destination: string, msg: string, cb?: any): void;
   sendMessage(destination: string, msg: string, cb?: any): void;
-// Public Getters
+  // Public Getters
   isSubscribedTo(channelName: string): true;
   isConnected(): boolean;
   getPublicKey(): string;
