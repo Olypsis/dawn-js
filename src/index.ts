@@ -1,10 +1,10 @@
 import { StatusJS, IStatusJS } from '../external/status-js-api';
+import { rejects } from 'assert';
 
 export class Dawn {
   public statusJS: IStatusJS;
   public statusPublicKey?: string;
   public statusUsername?: string;
-  public isListeningWithStatus: boolean;
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -15,7 +15,6 @@ export class Dawn {
 
   constructor() {
     this.statusJS = new StatusJS();
-    this.isListeningWithStatus = false;
     console.log('Dawn and Status initialized');
   }
 
@@ -24,8 +23,7 @@ export class Dawn {
     privateKey?: string,
   ): Promise<boolean> {
     try {
-
-      console.log("Attempting connection to status node...");
+      console.log('Attempting connection to status node...');
       // Connect to Status Provider
       await this.statusJS.connect(statusProvider, privateKey);
 
@@ -37,64 +35,80 @@ export class Dawn {
           this.statusPublicKey
         }`,
       );
-
-      // Listen For Messages
-      await this.createStatusListener();
-
-      // Request from mailserver
-      await this.statusUseMailservers();
-
       return true;
     } catch (err) {
       // Something failed during connection
-      console.log("Something failed:", err);
+      console.log('Something failed:', err);
       return false;
     }
   }
 
-  private async createStatusListener(): Promise<void> {
-    try {
-      console.log('Listening for messages...');
-      this.isListeningWithStatus = true;
-      await this.statusJS.onUserMessage((err: any, data: any) => {
-        if (data) {
-          const payload = JSON.parse(data.payload);
-          console.log(`Payload Received! Payload: ${JSON.stringify(payload)}`);
-          this.rawInbox.push(payload);
-          console.log("Inbox Length: ", this.rawInbox.length);
-        }
-      });
-    } catch (err) {
-      console.log(err.message);
-    }
+  public createStatusListener(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.statusJS.onUserMessage((err: any, data: any) => {
+          if (err) {
+            throw err;
+          }
+          if (data) {
+            const payload = JSON.parse(data.payload);
+            console.log(
+              `Payload Received! Payload: ${JSON.stringify(payload)}`,
+            );
+            this.rawInbox.push(payload);
+            console.log('Inbox Length: ', this.rawInbox.length);
+          }
+        });
+        console.log('Listening for messages...');
+        resolve(true);
+      } catch (err) {
+        // .onUserMessage() failed
+        console.log('createStatusListener:', err);
+        reject(false);
+      }
+    });
   }
 
   // Queries for historic messages
-  public async statusUseMailservers(): Promise<any> {
-    await this.statusJS.mailservers.useMailserver(
-      this.enode,
-      async (err: any, res: any) => {
-        // Set a 24 hour time window starting from current time
-        let from: number = parseInt(
-          (new Date().getTime() / 1000 - 86400).toString(),
-          10,
-        );
-        let to: number = parseInt((new Date().getTime() / 1000).toString(), 10);
-
-        // Request private user messages - return 
-        await this.statusJS.mailservers.requestUserMessages(
-          { from, to },
+  public statusUseMailservers(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      try {
+        this.statusJS.mailservers.useMailserver(
+          this.enode,
           (err: any, res: any) => {
             if (err) {
-              console.log(err);
-              return false;
-            } else {
-              console.log(`Messages requested from mailserver from ${from} to ${to}.`);
-              return true;
+              throw err;
             }
+            // Set a 24 hour time window starting from current time
+            let from: number = parseInt(
+              (new Date().getTime() / 1000 - 86400).toString(),
+              10,
+            );
+            let to: number = parseInt(
+              (new Date().getTime() / 1000).toString(),
+              10,
+            );
+
+            // Request private user messages - return
+            this.statusJS.mailservers.requestUserMessages(
+              { from, to },
+              (err: any, res: any) => {
+                if (err) {
+                  throw err;
+                } else {
+                  console.log(
+                    `Messages requested from mailserver from ${from} to ${to}.`,
+                  );
+                  resolve(true);
+                }
+              },
+            );
           },
         );
-      },
-    );
+      } catch (err) {
+        console.log('statusUseMailservers:', err);
+        reject(err);
+      }
+    });
   }
 }
