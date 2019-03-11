@@ -10,7 +10,7 @@
     "leadMaintainer": "Sharad Shekar <sharadshekar@gmail.com>",
     "author": "Sharad Shekar <sharadshekar@gmail.com>",
     "scripts": {
-        "test": "jest --config jestconfig.json",
+        "test": "jest --detectOpenHandles --config  jestconfig.json",
         "build": "tsc",
         "build:watch": "tsc --watch",
         "lint": "tslint -p tsconfig.json",
@@ -43,6 +43,7 @@
         "dist/**/*"
     ],
     "dependencies": {
+        "ipfs": "^0.34.4",
         "status-js-api": "^1.2.9"
     }
 }

@@ -1,11 +1,15 @@
 import { Dawn } from '../index';
 
-test('Dawn Connects To Status', async () => {
+test('Dawn Connects To Status & IPFS', async () => {
   const dawnJS = new Dawn();
   expect(await dawnJS.connect()).toEqual(true);
   expect(typeof dawnJS.Status.publicKey).toBe('string');
   expect(typeof dawnJS.Status.username).toBe('string');
+  expect(typeof dawnJS.IPFS.id).toBe('string');
+  expect(typeof dawnJS.IPFS.version).toBe('string');
 });
+
+
 
 test('Dawn Creates a listener', async () => {
   const dawnJS = new Dawn();
@@ -33,7 +37,7 @@ test('Dawn Can Send and Recieve Messages', async () => {
     '0x0011223344556677889900112233445566778899001122334455667788990010',
   );
 
-  console.log(typeof user1.Status.statusPublicKey, typeof user2.Status.statusPublicKey);
+  // console.log(typeof user1.Status.publicKey, typeof user2.Status.publicKey);
 
   // Turn on message listeners
   await user1.Status.createListener();
