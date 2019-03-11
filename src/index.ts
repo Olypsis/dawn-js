@@ -6,12 +6,12 @@ export class Dawn {
   public statusPublicKey?: string;
   public statusUsername?: string;
 
+  private rawInbox: any[] = [];
+
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
   private enode: string =
     'enode://015e22f6cd2b44c8a51bd7a23555e271e0759c7d7f52432719665a74966f2da456d28e154e836bee6092b4d686fe67e331655586c57b718be3997c1629d24167@35.226.21.19:30504';
-
-  private rawInbox: any[] = [];
 
   constructor() {
     this.statusJS = new StatusJS();
@@ -110,5 +110,68 @@ export class Dawn {
         reject(err);
       }
     });
+  }
+
+  public sendStatusMessage(
+    publicKey: string,
+    message: string,
+  ): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      try {
+        // Send message to a publickey via status
+        this.statusJS.sendUserMessage(
+          publicKey,
+          message,
+          (err: any, res: any) => {
+            if (err) {
+              throw err;
+            } else {
+              console.log(
+                `sendStatusMessage: Message sent to publickey ${publicKey}.`,
+              );
+              console.log(
+                `sendStatusMessage: Message: ${message}.`,
+              );
+              resolve(true);
+            }
+          },
+        );
+      } catch (err) {
+        // .sendUserMessage() failed
+        console.log('sendStatusMessage:', err);
+        reject(false);
+      }
+    });
+  }
+
+  public sendJsonMessage(publicKey: string, payload: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      try {
+        const stringifiedJSON: string = JSON.stringify(payload);
+        // Send message to a publickey via status
+        this.statusJS.sendJsonMessage(
+          publicKey,
+          payload,
+          (err: any, res: any) => {
+            if (err) {
+              throw err;
+            } else {
+              console.log(
+                `sendJsonMessage: JSON sent to publickey ${publicKey}.`,
+              );
+              resolve(true);
+            }
+          },
+        );
+      } catch (err) {
+        // .sendUserMessage() failed
+        console.log('sendStatusMessage:', err);
+        reject(false);
+      }
+    });
+  }
+
+  public getRawInbox(): any[] {
+    return this.rawInbox;
   }
 }
