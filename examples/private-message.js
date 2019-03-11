@@ -11,14 +11,14 @@ const Web3 = require('web3');
     '0x0011223344556677889900112233445566778899001122334455667788990010',
   );
 
-  const user1pubKey = status1.statusPublicKey;
-  const user2pubKey = status2.statusPublicKey;
+  const user1pubKey = status1.Status.publicKey;
+  const user2pubKey = status2.Status.publicKey;
 
   console.log(
-    'user1 (' + (await status1.statusUsername) + '):\n' + user1pubKey,
+    'user1 (' + (await status1.Status.username) + '):\n' + user1pubKey,
   );
   console.log(
-    'user2 (' + (await status2.statusUsername) + '):\n' + user2pubKey,
+    'user2 (' + (await status2.Status.username) + '):\n' + user2pubKey,
   );
   console.log('\n');
 
@@ -32,12 +32,12 @@ const Web3 = require('web3');
     console.log(data.payload);
   };
 
-  await status1.createStatusListener();
-  await status2.createStatusListener();
+  await status1.Status.createListener();
+  await status2.Status.createListener();
 
-  await status1.sendStatusMessage(user2pubKey, 'hello tester!');
-  await status2.sendStatusMessage(user1pubKey, 'hello user1!');
+  await status1.Status.sendMessage(user2pubKey, 'hello tester!');
+  await status2.Status.sendMessage(user1pubKey, 'hello user1!');
 
-  await status1.sendJsonMessage(user2pubKey, {x: 3});
-  await status2.sendJsonMessage(user1pubKey, {y: "bitch"});
+  await status1.Status.sendJsonMessage(user2pubKey, {x: 3});
+  await status2.Status.sendJsonMessage(user1pubKey, {y: "bitch"});
 })();
