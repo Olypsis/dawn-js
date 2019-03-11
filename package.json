@@ -10,7 +10,7 @@
     "leadMaintainer": "Sharad Shekar <sharadshekar@gmail.com>",
     "author": "Sharad Shekar <sharadshekar@gmail.com>",
     "scripts": {
-        "test": "jest --detectOpenHandles --config  jestconfig.json",
+        "test": "jest --config  jestconfig.json",
         "build": "tsc",
         "build:watch": "tsc --watch",
         "lint": "tslint -p tsconfig.json",
