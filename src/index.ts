@@ -32,5 +32,21 @@ export class Dawn {
       return false;
     }
   }
- 
+
+  // Upload and send file
+  /*
+  file:
+  to: 
+  message:
+  */
+
+  //Retrieve files sent to me
+
+  // Download and Decrypt a file
+  /*
+  hash:
+  key: 
+  */
+
+  // Check my messages
 }

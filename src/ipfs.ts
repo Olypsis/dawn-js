@@ -24,17 +24,16 @@ export class IPFS {
     });
   }
 
-  // Add file to IPFS
+  // Add file to IPFS : input should be an encrypted file buffer
   public addFile = async (buffer: any, fileName: string): Promise<object> => {
     const { node } = this;
     return new Promise(async (resolve, reject) => {
       try {
         const filesAdded = await node.add({
-          content: buffer,
-          path: fileName,
+          content: buffer, // A Buffer, Readable Stream or Pull Stream with the contents of the file
+          path: fileName, // The file path
         });
         const { hash, path } = filesAdded[0];
-        console.log('Added file:', path, hash);
         resolve({ hash, path });
       } catch (err) {
         reject(err);
@@ -42,11 +41,58 @@ export class IPFS {
     });
   };
 
+  // Get File from IPFS
+  // FIXME: Path should return filename and not cid
+  public getFile = async (hash: string): Promise<object> => {
+    const { node } = this;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const files = await node.get(hash);
+        const res = files.map((file: any) => {
+          const { content, path } = file;
+          return { content, path };
+        });
+        resolve(res);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  // Pin file to node on IPFS - returns pinset
+  public pinAdd = async (hash: string): Promise<object> => {
+    const { node } = this;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const pinset = await node.pin.add(hash);
+        resolve(pinset);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
+  // Pin file to node on IPFS - returns pinset
+  public pinLs = async (hash: string): Promise<object> => {
+    const { node } = this;
+    return new Promise(async (resolve, reject) => {
+      try {
+        const pinset = await node.pin.ls();
+        resolve(pinset);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  };
+
   private checkNodeReady(fn?: any) {
-    if(this.isNodeReady == false) {
-       setTimeout(this.checkNodeReady, 100); /* this checks the flag every 100 milliseconds*/
+    if (this.isNodeReady == false) {
+      setTimeout(
+        this.checkNodeReady,
+        100,
+      ); /* this checks the flag every 100 milliseconds*/
     } else {
       return true;
     }
-}
+  }
 }

@@ -57,7 +57,7 @@ test('Dawn Can Send and Recieve Messages', async () => {
 });
 
 // FIXME: Remove Timeouts in favor of flag checks for IPFS node start
-test('Dawn Uploads a file to IPFS', async () => {
+test('Dawn Uploads text to IPFS', async () => {
   const dawnJS = new Dawn();
   // Wait for IPFS node start
   setTimeout(async () => {
@@ -67,5 +67,24 @@ test('Dawn Uploads a file to IPFS', async () => {
     );
     expect(path).toBe('hello.txt');
     expect(hash).toBe('QmWfVY9y3xjsixTgbd9AorQxH7VtMpzfx2HaWtsoUYecaX');
+  }, 2000);
+});
+
+// FIXME: Remove Timeouts in favor of flag checks for IPFS node start
+test('Dawn Uploads and Downloads text to IPFS', async () => {
+  const dawnJS = new Dawn();
+  // Wait for IPFS node start
+  setTimeout(async () => {
+    const { path, hash } = await dawnJS.IPFS.addFile(
+      Buffer.from('hello'),
+      'hello.txt',
+    );
+
+    // Get File
+    const files = await dawnJS.IPFS.getFile(hash);
+    console.log(files);
+
+    expect(typeof files.content).toBe('Buffer');
+    expect(path).toBe('QmWfVY9y3xjsixTgbd9AorQxH7VtMpzfx2HaWtsoUYecaX');
   }, 2000);
 });

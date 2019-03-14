@@ -8,7 +8,12 @@ async function main() {
     Buffer.from('hello'),
     'hello.txt',
   );
-  console.log(path, hash);
-}
 
+  console.log('Added file:', path, hash);
+
+
+  // Get File
+  const files = await user1.IPFS.getFile(hash);
+  console.log(files);
+}
 main();
