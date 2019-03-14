@@ -4,13 +4,15 @@ async function main() {
   // Send message from User1 to User1
   const user1 = new Dawn();
 
-  const encryptedStream = user1.Files.createEncryptedStream(
-    __dirname + '/file.json',
-  );
+//  await user1.transferFile(file)
 
-  const decryptedStream = user1.Files.createDecryptAndWriteStream(
+  const encryptedStream = user1.Files.createEncryptedStream(
+    __dirname + '/test.json',
+  );
+    
+  user1.Files.createDecryptAndWriteStream(
     encryptedStream,
-    __dirname + '/file.out.json',
+    __dirname + '/test.out.json',
   );
 }
 

@@ -44,6 +44,7 @@
     ],
     "dependencies": {
         "ipfs": "^0.34.4",
+        "progress-stream": "^2.0.0",
         "status-js-api": "^1.2.9"
     }
 }

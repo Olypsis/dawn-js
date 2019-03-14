@@ -37,12 +37,17 @@ export class Dawn {
     }
   }
 
-  // Upload and send file
+  // Upload File, Encrypt, Add to IPFS And send file
   /*
   file:
   to: 
   message:
   */
+  public async transferFile(filePath: string, fileName: string = '') {
+    const encryptedStream = this.Files.createEncryptedStream(filePath);
+    const result = this.IPFS.addFileStream(encryptedStream);
+    console.log(result);
+  }
 
   //Retrieve files sent to me
 
