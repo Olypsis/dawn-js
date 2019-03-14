@@ -41,20 +41,26 @@ export class IPFS {
     });
   };
 
-    // Add file to IPFS as a Stream
-    public addFileStream = async (stream: any): Promise<object> => {
-      const { node } = this;
-      return new Promise(async (resolve, reject) => {
-        console.log(stream);
+  // Add file to IPFS as a Stream
+  public addFileStream = async (stream: any): Promise<object> => {
+    const { node } = this;
+    return new Promise(async (resolve, reject) => {
+      node.on('ready', () => {
         try {
-          const result = await node.addFromStream(stream);
-          console.log("addFileStream:", result);
-          resolve(result);
+          node.addFromStream(stream, (err?: any, result?: any) => {
+            if (err) {
+              throw err;
+            }
+            resolve(result);
+          });
         } catch (err) {
           reject(err);
         }
       });
-    };
+    });
+  };
+
+  
 
   // Get File from IPFS
   // FIXME: Path should return filename and not cid

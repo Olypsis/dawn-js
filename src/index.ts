@@ -44,9 +44,9 @@ export class Dawn {
   message:
   */
   public async transferFile(filePath: string, fileName: string = '') {
-    const encryptedStream = this.Files.createEncryptedStream(filePath);
-    const result = this.IPFS.addFileStream(encryptedStream);
-    console.log(result);
+    const encryptedStream = await this.Files.createEncryptedStream(filePath);
+    const result = await this.IPFS.addFileStream(encryptedStream);
+    console.log("transferFile:", result);
   }
 
   //Retrieve files sent to me

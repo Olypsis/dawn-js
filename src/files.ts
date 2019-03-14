@@ -7,27 +7,50 @@ const zlib = require('zlib');
 const progress = require('progress-stream');
 
 export class Files {
-
-  public currentFileSize : number = 0;
+  public currentFileSize: number = 0;
 
   constructor() {}
 
-  public createEncryptedStream(inFilePath: string): any {
-    const stats = fs.statSync(inFilePath);
-    this.currentFileSize = stats.size;
-    const progressStream = this.createProgressStream(this.currentFileSize, "encrypt");
-    const readStream = this.createReadStream(inFilePath);
-    const zip = this.createZipStream();
-    const encrypt = this.createEncryptStream();
-    return readStream.pipe(zip).pipe(encrypt).pipe(progressStream);
+  public async createEncryptedStream(inFilePath: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      try {
+        const stats = fs.statSync(inFilePath);
+        this.currentFileSize = stats.size;
+        const progressStream = this.createProgressStream(
+          this.currentFileSize,
+          'encrypt',
+        );
+        const readStream = this.createReadStream(inFilePath);
+        const zip = this.createZipStream();
+        const encrypt = this.createEncryptStream();
+        resolve(
+          readStream
+            .pipe(zip)
+            .pipe(encrypt)
+            .pipe(progressStream),
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 
-  public createDecryptAndWriteStream(encryptedStream: any, outFilePath: string): any {
+  public createDecryptAndWriteStream(
+    encryptedStream: any,
+    outFilePath: string,
+  ): any {
     const decrypt = this.createDecryptStream();
-    const progressStream = this.createProgressStream(this.currentFileSize, "decrypt");
+    const progressStream = this.createProgressStream(
+      this.currentFileSize,
+      'decrypt',
+    );
     const unzip = this.createUnzipStream();
     const write = this.createWriteStream(outFilePath);
-    return encryptedStream.pipe(decrypt).pipe(unzip).pipe(progressStream).pipe(write);
+    return encryptedStream
+      .pipe(decrypt)
+      .pipe(unzip)
+      .pipe(progressStream)
+      .pipe(write);
   }
 
   // Encrypt File
@@ -55,20 +78,20 @@ export class Files {
     return zlib.createGzip();
   };
 
-   // Unzip File
-   private createUnzipStream = () => {
+  // Unzip File
+  private createUnzipStream = () => {
     return zlib.createGunzip();
   };
 
   private createProgressStream = (fileSize: number, flag: string) => {
     const progressStream = progress({
-        length: fileSize,
-        time: 100 /* ms */
+      length: fileSize,
+      time: 100 /* ms */,
     });
 
     progressStream.on('progress', function(progress: any) {
-        console.log(flag + ": " + progress.percentage);
-        /*
+      console.log(flag + ': ' + progress.percentage);
+      /*
         {
             percentage: 9.05,
             transferred: 949624,
@@ -83,8 +106,7 @@ export class Files {
     });
 
     return progressStream;
-  }
-
+  };
 
   // Test
   public doTheThing = (inFilePath: string, outFilePath: string) => {
