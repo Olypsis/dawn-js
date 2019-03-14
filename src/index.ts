@@ -1,11 +1,13 @@
 import { Status } from './status';
 import { IPFS } from './ipfs';
+import { Files } from './files';
 
 import { rejects } from 'assert';
 
 export class Dawn {
   public Status?: any;
   public IPFS?: any;
+  public Files?: any; 
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -15,6 +17,8 @@ export class Dawn {
   constructor() {
     this.Status = new Status();
     this.IPFS = new IPFS();
+    this.Files = new Files();
+    console.log('Dawn and Status initialized');
   }
 
   public async connect(
