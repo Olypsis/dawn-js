@@ -1,10 +1,12 @@
 import { Status } from './status';
+import { Files } from './files';
 
 import { rejects } from 'assert';
 
 export class Dawn {
 
   public Status?: any; 
+  public Files?: any; 
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -14,6 +16,7 @@ export class Dawn {
 
   constructor() {
     this.Status = new Status();
+    this.Files = new Files();
     console.log('Dawn and Status initialized');
   }
     
