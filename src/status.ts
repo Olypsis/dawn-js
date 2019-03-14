@@ -15,7 +15,7 @@ export class Status {
 
   constructor() {
     this.instance = new StatusJS();
-    console.log('Dawn and Status initialized');
+    console.log('Status initialized');
   }
 
   public async connect(
