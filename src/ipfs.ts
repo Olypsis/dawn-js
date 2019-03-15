@@ -1,6 +1,5 @@
 const _IPFS = require('ipfs');
 
-const through2 = require('through2');
 
 export class IPFS {
   public node: any;
