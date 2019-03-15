@@ -7,7 +7,7 @@ import { rejects } from 'assert';
 export class Dawn {
   public Status?: any;
   public IPFS?: any;
-  public Files?: any; 
+  public Files?: any;
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -43,19 +43,33 @@ export class Dawn {
   to: 
   message:
   */
-  public async transferFile(filePath: string, fileName: string = '') {
-    const encryptedStream = await this.Files.createEncryptedStream(filePath);
-    const result = await this.IPFS.addFileStream(encryptedStream);
-    console.log("transferFile:", result);
+  public async transferFile(filePath: string) {
+    try {
+      const encryptedStream = await this.Files.createEncryptedStream(filePath);
+      const result = await this.IPFS.addFileStream(encryptedStream);
+      return result[0];
+    } catch (err){
+      console.log(err);
+    }
+ 
   }
 
   //Retrieve files sent to me
-
   // Download and Decrypt a file
   /*
   hash:
   key: 
   */
+  public async getFile(hash: string, fileName: string) {
+    try {
+      // console.log('getting FileStream');
+      const encryptedStream = await this.IPFS.getFileStream(hash);
+      // console.log('getFile', encryptedStream);
+      this.Files.createDecryptAndWriteStream(encryptedStream, fileName);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   // Check my messages
 }

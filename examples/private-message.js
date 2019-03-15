@@ -39,5 +39,5 @@ const Web3 = require('web3');
   await status2.Status.sendMessage(user1pubKey, 'hello user1!');
 
   await status1.Status.sendJsonMessage(user2pubKey, {x: 3});
-  await status2.Status.sendJsonMessage(user1pubKey, {y: "bitch"});
+  await status2.Status.sendJsonMessage(user1pubKey, {y: "hello again"});
 })();

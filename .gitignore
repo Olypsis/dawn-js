@@ -4,3 +4,5 @@ docs
 yarn-debug.log*
 yarn-error.log*
 **/.DS_STORE
+**/*.mp3
+

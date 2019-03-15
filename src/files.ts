@@ -16,13 +16,10 @@ export class Files {
       try {
         const stats = fs.statSync(inFilePath);
         this.currentFileSize = stats.size;
-        const progressStream = this.createProgressStream(
-          this.currentFileSize,
-          'encrypt',
-        );
         const readStream = this.createReadStream(inFilePath);
         const zip = this.createZipStream();
         const encrypt = this.createEncryptStream();
+        const progressStream = this.createProgressStream('encrypt');
         resolve(
           readStream
             .pipe(zip)
@@ -40,12 +37,13 @@ export class Files {
     outFilePath: string,
   ): any {
     const decrypt = this.createDecryptStream();
-    const progressStream = this.createProgressStream(
-      this.currentFileSize,
-      'decrypt',
-    );
     const unzip = this.createUnzipStream();
+    const progressStream = this.createProgressStream('decrypt');
     const write = this.createWriteStream(outFilePath);
+    // console.log("createDecryptAndWriteStream: encryptedStream:", encryptedStream)
+    // console.log("createDecryptAndWriteStream: transformStream:", transformStream)
+    // console.log("createDecryptAndWriteStream: decrypt:", decrypt);
+
     return encryptedStream
       .pipe(decrypt)
       .pipe(unzip)
@@ -83,9 +81,9 @@ export class Files {
     return zlib.createGunzip();
   };
 
-  private createProgressStream = (fileSize: number, flag: string) => {
+  private createProgressStream = (flag: string) => {
     const progressStream = progress({
-      length: fileSize,
+      length: this.currentFileSize,
       time: 100 /* ms */,
     });
 

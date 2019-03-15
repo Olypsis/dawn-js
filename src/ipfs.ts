@@ -1,5 +1,7 @@
 const _IPFS = require('ipfs');
 
+const through2 = require('through2');
+
 export class IPFS {
   public node: any;
   public version?: string;
@@ -60,7 +62,20 @@ export class IPFS {
     });
   };
 
-  
+  // Get File Stream from IPFS
+  public getFileStream = async (hash: string): Promise<any> => {
+    const { node } = this;
+
+    return new Promise((resolve, reject) => {
+      const stream = node.getReadableStream(hash);
+
+      stream.on('data', (file: any) => {
+        if (file.type === 'dir')
+          return reject(Error(`IPFS hash (${hash}) is a directory`));
+        resolve(file.content);
+      });
+    });
+  };
 
   // Get File from IPFS
   // FIXME: Path should return filename and not cid
@@ -105,15 +120,4 @@ export class IPFS {
       }
     });
   };
-
-  private checkNodeReady(fn?: any) {
-    if (this.isNodeReady == false) {
-      setTimeout(
-        this.checkNodeReady,
-        100,
-      ); /* this checks the flag every 100 milliseconds*/
-    } else {
-      return true;
-    }
-  }
 }
