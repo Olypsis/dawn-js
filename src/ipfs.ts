@@ -19,8 +19,8 @@ export class IPFS {
       this.isNodeReady = true;
 
       console.log(`IPFS Node Ready:
-        Version: ${version.version}
-        Node Id: ${id.id}
+        Version: ${this.version}
+        Node Id: ${this.id}
       `);
     });
   }

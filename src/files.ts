@@ -40,9 +40,6 @@ export class Files {
     const unzip = this.createUnzipStream();
     const progressStream = this.createProgressStream('decrypt');
     const write = this.createWriteStream(outFilePath);
-    // console.log("createDecryptAndWriteStream: encryptedStream:", encryptedStream)
-    // console.log("createDecryptAndWriteStream: transformStream:", transformStream)
-    // console.log("createDecryptAndWriteStream: decrypt:", decrypt);
 
     return encryptedStream
       .pipe(decrypt)
@@ -66,9 +63,12 @@ export class Files {
     return fs.createReadStream(filePath);
   };
 
-  // Writefile as a stream
+  // Write file as a stream. Once finished, output to console. 
   public createWriteStream = (filePath: string) => {
-    return fs.createWriteStream(filePath);
+    const stream = fs.createWriteStream(filePath);
+    // On stream close, output to console
+    stream.on('finish', () => { console.log(`File written to ${filePath}`) })
+    return stream
   };
 
   // Zip File

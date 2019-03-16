@@ -1,7 +1,7 @@
 const { Dawn } = require('../dist/src');
 
-const file = __dirname + '/static/test.json';
-const outFile =  __dirname + "/static/out.json"
+const file = __dirname + '/static/mix.mp3';
+const outFile =  __dirname + "/static/out.mp3"
 
 async function main() {
   // Send message from User1 to User1
