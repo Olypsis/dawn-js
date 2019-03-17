@@ -12,20 +12,23 @@ async function main() {
     const user1 = new Dawn();
     await user1.connect();
 
-    // Upload File and Send via Status to self
-    await user1.transferFile(user1.Status.publicKey, file1);
-
-    // Wait for message recieved by Status listener
-    console.log('Waiting for message recieved...');
+    // Hack - wait for IPFS Node ready
     setTimeout(async () => {
-      const inbox = await user1.getInbox();
-      console.log('inbox:', inbox);
+      // Upload File and Send via Status to self
+      await user1.transferFile(user1.Status.publicKey, file1);
 
-      // Upon recieving message from self, download file from payload
-      await user1.downloadFileFromInbox(0, outFile1);
+      // Wait for message recieved by Status listener
+      console.log('Waiting for message recieved...');
+      setTimeout(async () => {
+        const inbox = await user1.getInbox();
+        console.log('inbox:', inbox);
+
+        // Upon recieving message from self, download file from payload
+        await user1.downloadFileFromInbox(0, outFile1);
+      }, 3000);
     }, 3000);
   } catch (err) {
-    console.log("main:",err)
+    console.log('main:', err);
   }
 }
 
