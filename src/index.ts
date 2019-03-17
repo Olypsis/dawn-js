@@ -37,9 +37,13 @@ export class Dawn {
       // Listen for incoming messages
       await this.Status.createListener();
 
+      // Request historic Mailserver messages
+      const res = await this.Status.useMailservers();
+      // console.log("connect: mailservers:", res)
+
       this.isConnected = true;
 
-      return true;
+      return res;
     } catch (err) {
       // Something failed during connection
       console.log('Something failed:', err);
@@ -83,14 +87,16 @@ export class Dawn {
 
   //Retrieve files sent to me
   // If connected to status, return inbox
-  public getInbox(): Promise<any[]> {
-    return new Promise((resolve, reject) => {
+  public async getInbox(): Promise<any[]> {
+    try {
       if (this.isConnected) {
-        const inbox: any[] = this.Status.getCleanInbox();
-        resolve(inbox);
+        const inbox: any[] = await this.Status.getCleanInbox();
+        return inbox;
       }
-      reject(new Error('Not Connected to Dawn. Run Dawn.connect() first!'));
-    });
+      throw new Error('Not Connected to Dawn. Run Dawn.connect() first!');
+    } catch (err) {
+      throw err;
+    }
   }
 
   // Upload, Encrypt, Add to IPFS for a single file
@@ -124,7 +130,7 @@ export class Dawn {
     try {
       // Get Encrypted File Stream from IPFS hash
       const encryptedStream = await this.IPFS.getFileStream(hash);
-      
+
       // Pipe encrypted stream into the decryption/unzipping/write stream
       this.Files.createDecryptAndWriteStream(encryptedStream, fileName, 3);
     } catch (err) {

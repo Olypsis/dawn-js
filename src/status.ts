@@ -1,5 +1,6 @@
 import { StatusJS, IStatusJS } from '../external/status-js-api';
 import { rejects } from 'assert';
+const _ = require('lodash');
 const shortid = require('shortid');
 
 export class Status {
@@ -57,8 +58,11 @@ export class Status {
             //   `Payload Received! Payload: ${JSON.stringify(payload)}`,
             // );
 
-            // Push nested payload from status message to inbox
-            this.rawInbox.push(payload[1][0]);
+            // Check content type is `content/json`
+            if (payload[1][1] === 'content/json') {
+              // Push nested payload from status message to raw inbox
+              this.rawInbox.push(payload[1][0]);
+            }
           }
         });
         console.log('Listening for messages...');
@@ -101,7 +105,7 @@ export class Status {
                   console.log(
                     `Messages requested from mailserver from ${from} to ${to}.`,
                   );
-                  resolve(true);
+                  resolve(res);
                 }
               },
             );
@@ -169,7 +173,10 @@ export class Status {
 
   public constructJSONPayload(fileData: any) {
     const payload = {
-      date: Date.now(),
+      date: parseInt(
+        (new Date().getTime() / 1000).toString(),
+        10,
+      ),
       hash: fileData.hash,
       id: shortid.generate(),
       key: 'password',
@@ -179,12 +186,16 @@ export class Status {
     return payload;
   }
 
-  public getCleanInbox(): any[] {
-    const { rawInbox } = this;
-    return this.cleanInbox(rawInbox)
-  }
-
-  private cleanInbox(rawInbox: any): any[] {
-    return rawInbox
+  public getCleanInbox(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        const { rawInbox } = this;
+        const dedupedInbox = _.uniqBy(rawInbox, 'id');
+        const sortedInbox = _.orderBy(dedupedInbox, ['date'], ['desc']);
+        resolve(sortedInbox);
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 }
