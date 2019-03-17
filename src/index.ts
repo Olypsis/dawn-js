@@ -9,6 +9,8 @@ export class Dawn {
   public IPFS?: any;
   public Files?: any;
 
+  public isConnected: boolean = false;
+
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
   private enode: string =
@@ -21,6 +23,9 @@ export class Dawn {
     console.log('Dawn and Status initialized');
   }
 
+  // GetInbox
+
+  // Connect to Status, IPFS etc
   public async connect(
     statusProvider: string = this.testStatusProvider,
     privateKey?: string,
@@ -29,8 +34,10 @@ export class Dawn {
       // Connect to Status Provider
       await this.Status.connect(statusProvider, privateKey);
 
-      // Listen for incoming messages 
+      // Listen for incoming messages
       await this.Status.createListener();
+
+      this.isConnected = true;
 
       return true;
     } catch (err) {
@@ -46,70 +53,84 @@ export class Dawn {
   receiverAddress: 
   message:
   */
-  public async transferFile(receiverAddress: string, filePath: string) : Promise<boolean> {
-    try {
-      // Get IPFS fileData after upload: {hash, path, size}
-      const fileData = await this.encryptUploadToIPFS(filePath);
 
-      // Construct JSON message payload
-      const payload: any = this.Status.constructJSONPayload(fileData);
+  // Returns Confirmation of file that was sent,
+  public transferFile(
+    receiverAddress: string,
+    filePath: string,
+  ): Promise<boolean> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get IPFS fileData after upload: {hash, path, size}
+        const fileData = await this.encryptUploadToIPFS(filePath);
 
-      // Send JSON payload to reciever's public key through Status
-      const result = await this.Status.sendJsonMessage(
-        receiverAddress,
-        payload,
-      );
+        // Construct JSON message payload
+        const payload: any = this.Status.constructJSONPayload(fileData);
 
-      return result; 
-    } catch (err) {
-      console.log("transferFile:", err);
-      return false;
-    }
+        // Send JSON payload to reciever's public key through Status
+        const result = await this.Status.sendJsonMessage(
+          receiverAddress,
+          payload,
+        );
+
+        resolve(result);
+      } catch (err) {
+        console.log('transferFile:', err);
+        reject(err);
+      }
+    });
   }
 
+  //Retrieve files sent to me
+  // If connected to status, return inbox
+  public getInbox(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      if (this.isConnected) {
+        const inbox: any[] = this.Status.getCleanInbox();
+        resolve(inbox);
+      }
+      reject(new Error('Not Connected to Dawn. Run Dawn.connect() first!'));
+    });
+  }
 
-   // Upload, Encrypt, Add to IPFS and Send a single file
+  // Upload, Encrypt, Add to IPFS for a single file
   /*
   filePath:
   receiverAddress: 
   message:
   */
- public async encryptUploadToIPFS(filePath: string) {
-  try {
-    // Create stream for reading and encrypting file
-    const encryptedStream: any = await this.Files.createEncryptedStream(
-      filePath,
-    );
-
-    // Result is an Array[Object] containing `hash`, `path` and `size` from IPFS operation
-    const ipfsAddedFiles: any = await this.IPFS.addFileStream(
-      encryptedStream,
-    );
-
-    return ipfsAddedFiles[0];;
-  } catch (err) {
-    console.log(err);
+  public async encryptUploadToIPFS(filePath: string) {
+    try {
+      // Create stream for reading and encrypting file
+      const encryptedStream: any = await this.Files.createEncryptedStream(
+        filePath,
+      );
+      // Result is an Array[Object] containing `hash`, `path` and `size` from IPFS operation
+      const ipfsAddedFiles: any = await this.IPFS.addFileStream(
+        encryptedStream,
+      );
+      return ipfsAddedFiles[0];
+    } catch (err) {
+      console.log(err);
+    }
   }
-}
-
- //Retrieve files sent to me
-
 
   // Download and Decrypt a file
   /*
   hash:
   key: 
   */
- public async downloadDecryptFromIPFS(hash: string, fileName: string) {
-  try {
-    // Get Encrypted File Stream from IPFS hash
-    const encryptedStream = await this.IPFS.getFileStream(hash);
-    // Pipe encrypted stream into the decryption/unzipping/write stream
-    this.Files.createDecryptAndWriteStream(encryptedStream, fileName, 3);
-  } catch (err) {
-    console.log(err);
+  public async downloadDecryptFromIPFS(hash: string, fileName: string) {
+    try {
+      // Get Encrypted File Stream from IPFS hash
+      const encryptedStream = await this.IPFS.getFileStream(hash);
+      
+      // Pipe encrypted stream into the decryption/unzipping/write stream
+      this.Files.createDecryptAndWriteStream(encryptedStream, fileName, 3);
+    } catch (err) {
+      console.log(err);
+    }
   }
-}
 
   //Retrieve files sent to me
   // Download and Decrypt a file

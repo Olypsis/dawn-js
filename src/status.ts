@@ -53,11 +53,12 @@ export class Status {
           }
           if (data) {
             const payload = JSON.parse(data.payload);
-            console.log(
-              `Payload Received! Payload: ${JSON.stringify(payload)}`,
-            );
-            this.rawInbox.push(payload);
-            console.log('Inbox Length: ', this.rawInbox.length);
+            // console.log(
+            //   `Payload Received! Payload: ${JSON.stringify(payload)}`,
+            // );
+
+            // Push nested payload from status message to inbox
+            this.rawInbox.push(payload[1][0]);
           }
         });
         console.log('Listening for messages...');
@@ -133,7 +134,7 @@ export class Status {
           },
         );
       } catch (err) {
-        console.log(new Error('sendStatusMessage: '+ err));
+        console.log(new Error('sendStatusMessage: ' + err));
         reject(err);
       }
     });
@@ -178,7 +179,12 @@ export class Status {
     return payload;
   }
 
-  public getRawInbox(): any[] {
-    return this.rawInbox;
+  public getCleanInbox(): any[] {
+    const { rawInbox } = this;
+    return this.cleanInbox(rawInbox)
+  }
+
+  private cleanInbox(rawInbox: any): any[] {
+    return rawInbox
   }
 }

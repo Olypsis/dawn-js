@@ -7,7 +7,7 @@ export class IPFS {
   public id?: string;
   private isNodeReady: boolean = false;
 
-  //IPFS is completely setup in its constructor
+  //FIXME: IPFS is completely setup in its constructor
   constructor() {
     this.node = new _IPFS();
 
@@ -46,7 +46,6 @@ export class IPFS {
   public addFileStream = async (stream: any): Promise<object> => {
     const { node } = this;
     return new Promise(async (resolve, reject) => {
-      node.on('ready', () => {
         try {
           node.addFromStream(stream, (err?: any, result?: any) => {
             if (err) {
@@ -57,7 +56,6 @@ export class IPFS {
         } catch (err) {
           reject(err);
         }
-      });
     });
   };
 
