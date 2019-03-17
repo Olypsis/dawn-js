@@ -4,6 +4,7 @@ import { Files } from './files';
 
 import { rejects } from 'assert';
 
+
 export class Dawn {
   public Status?: any;
   public IPFS?: any;
@@ -20,7 +21,7 @@ export class Dawn {
     this.Status = new Status();
     this.IPFS = new IPFS();
     this.Files = new Files();
-    console.log('Dawn and Status initialized');
+    console.log('Dawn, Status and IPFS initialized');
   }
 
   // GetInbox
@@ -69,7 +70,7 @@ export class Dawn {
         const fileData = await this.encryptUploadToIPFS(filePath);
 
         // Construct JSON message payload
-        const payload: any = this.Status.constructJSONPayload(fileData);
+        const payload: any = this.Status.constructJSONPayload(fileData, filePath);
 
         // Send JSON payload to reciever's public key through Status
         const result = await this.Status.sendJsonMessage(
@@ -126,32 +127,48 @@ export class Dawn {
   hash:
   key: 
   */
-  public async downloadDecryptFromIPFS(hash: string, fileName: string) {
+  public async downloadDecryptFromIPFS(
+    hash: string,
+    key: string,
+    fileName: string,
+  ): Promise<void> {
     try {
       // Get Encrypted File Stream from IPFS hash
       const encryptedStream = await this.IPFS.getFileStream(hash);
 
       // Pipe encrypted stream into the decryption/unzipping/write stream
-      this.Files.createDecryptAndWriteStream(encryptedStream, fileName, 3);
+      this.Files.createDecryptAndWriteStream(encryptedStream, key, fileName);
     } catch (err) {
       console.log(err);
     }
   }
 
-  //Retrieve files sent to me
-  // Download and Decrypt a file
-  /*
-  hash:
-  key: 
-  */
-  public async getFile(hash: string, fileName: string) {
+  // Download a file from your inbox using its Array index or id
+  public async downloadFileFromInbox(locator: number | string, outFileName: string) {
+    let file;
     try {
-      // console.log('getting FileStream');
-      const encryptedStream = await this.IPFS.getFileStream(hash);
-      // console.log('getFile', encryptedStream);
-      this.Files.createDecryptAndWriteStream(encryptedStream, fileName, 3);
+      // If file is located by index
+      if (typeof locator === 'number') {
+        file = this.Status.cleanInbox[locator];
+      }
+      // If file is located by string id
+      else if (locator === 'string') {
+        file = this.Status.cleanInbox.find(
+          (payload: any) => payload.id == locator,
+        );
+        // If other param is passed, throw
+      } else {
+        throw new Error('Parameter must be a valid index or string ID');
+      }
+      // If file not found, throw
+      if (!!!file) {
+        throw new Error('File not found in inbox.');
+      }
+      console.log('file:', file)
+      const { hash, key } = file;
+      return await this.downloadDecryptFromIPFS(hash, key, outFileName);
     } catch (err) {
-      console.log(err);
+      throw err;
     }
   }
 

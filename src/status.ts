@@ -2,6 +2,8 @@ import { StatusJS, IStatusJS } from '../external/status-js-api';
 import { rejects } from 'assert';
 const _ = require('lodash');
 const shortid = require('shortid');
+const path = require('path');
+
 
 export class Status {
   public instance: IStatusJS;
@@ -9,6 +11,8 @@ export class Status {
   public username?: string;
 
   private rawInbox: any[] = [];
+  private cleanInbox: any[] = [];
+
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -171,12 +175,15 @@ export class Status {
     });
   }
 
-  public constructJSONPayload(fileData: any) {
+  public constructJSONPayload(fileData: any, filePath: string) {
+    const fileName = path.parse(filePath).base
+
     const payload = {
       date: parseInt(
         (new Date().getTime() / 1000).toString(),
         10,
       ),
+      fileName,
       hash: fileData.hash,
       id: shortid.generate(),
       key: 'password',
@@ -192,6 +199,7 @@ export class Status {
         const { rawInbox } = this;
         const dedupedInbox = _.uniqBy(rawInbox, 'id');
         const sortedInbox = _.orderBy(dedupedInbox, ['date'], ['desc']);
+        this.cleanInbox = sortedInbox;
         resolve(sortedInbox);
       } catch (err) {
         reject(err);

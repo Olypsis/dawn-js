@@ -33,14 +33,15 @@ export class Files {
 
   public createDecryptAndWriteStream(
     encryptedStream: any,
-    outFilePath: string,
-    key: string
+    key: string,
+    outFilePath: string
+
   ): any {
     const decrypt = this.createDecryptStream();
     const unzip = this.createUnzipStream();
     const progressStream = this.createProgressStream('decrypt');
     const write = this.createWriteStream(outFilePath);
-
+    console.log("createDecryptAndWriteStream", key)
     return encryptedStream
       .pipe(decrypt)
       .pipe(unzip)
