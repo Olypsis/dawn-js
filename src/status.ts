@@ -1,5 +1,6 @@
 import { StatusJS, IStatusJS } from '../external/status-js-api';
 import { rejects } from 'assert';
+const shortid = require('shortid');
 
 export class Status {
   public instance: IStatusJS;
@@ -112,10 +113,7 @@ export class Status {
     });
   }
 
-  public sendMessage(
-    publicKey: string,
-    message: string,
-  ): Promise<boolean> {
+  public sendMessage(publicKey: string, message: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       try {
         // Send message to a publickey via status
@@ -129,17 +127,14 @@ export class Status {
               console.log(
                 `sendStatusMessage: Message sent to publickey ${publicKey}.`,
               );
-              console.log(
-                `sendStatusMessage: Message: ${message}.`,
-              );
+              console.log(`sendStatusMessage: Message: ${message}.`);
               resolve(true);
             }
           },
         );
       } catch (err) {
-        // .sendUserMessage() failed
-        console.log('sendStatusMessage:', err);
-        reject(false);
+        console.log(new Error('sendStatusMessage: '+ err));
+        reject(err);
       }
     });
   }
@@ -164,11 +159,23 @@ export class Status {
           },
         );
       } catch (err) {
-        // .sendUserMessage() failed
-        console.log('sendStatusMessage:', err);
+        // .sendJsonMessage() failed
+        console.log('sendJsonMessage:', err);
         reject(false);
       }
     });
+  }
+
+  public constructJSONPayload(fileData: any) {
+    const payload = {
+      date: Date.now(),
+      hash: fileData.hash,
+      id: shortid.generate(),
+      key: 'password',
+      path: fileData.path,
+      size: fileData.size,
+    };
+    return payload;
   }
 
   public getRawInbox(): any[] {

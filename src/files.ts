@@ -1,15 +1,14 @@
 import { Stream } from 'stream';
-const crypto = require('crypto'),
-  algorithm = 'aes-256-ctr',
-  password = 'password';
+const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
 const progress = require('progress-stream');
 
+const algorithm = 'aes-256-ctr';
+const password = 'password';
+
 export class Files {
   public currentFileSize: number = 0;
-
-  constructor() {}
 
   public async createEncryptedStream(inFilePath: string): Promise<any> {
     return new Promise((resolve, reject) => {
@@ -35,6 +34,7 @@ export class Files {
   public createDecryptAndWriteStream(
     encryptedStream: any,
     outFilePath: string,
+    key: string
   ): any {
     const decrypt = this.createDecryptStream();
     const unzip = this.createUnzipStream();

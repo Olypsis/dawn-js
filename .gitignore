@@ -3,6 +3,11 @@ dist
 docs
 yarn-debug.log*
 yarn-error.log*
+
+
+# Media
 **/.DS_STORE
 **/*.mp3
+**/*.pdf
+
 
