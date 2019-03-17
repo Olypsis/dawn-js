@@ -16,7 +16,7 @@ cd dawn-js && yarn
 ```
 
 ## Usage example
-Run the `dawn-test.js` in the examples folder, after installing with `yarn`:
+After installing with `yarn`, `cd` into /examples and test it out. :Run `full-transfer-download.js` in the examples folder,
 
 ```sh
 node examples/dawn-test.js
