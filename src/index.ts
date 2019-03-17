@@ -4,7 +4,6 @@ import { Files } from './files';
 
 import { rejects } from 'assert';
 
-
 export class Dawn {
   public Status?: any;
   public IPFS?: any;
@@ -67,10 +66,16 @@ export class Dawn {
     return new Promise(async (resolve, reject) => {
       try {
         // Get IPFS fileData after upload: {hash, path, size}
-        const fileData = await this.encryptUploadToIPFS(filePath);
+        const { fileData, encryptionKey } = await this.encryptUploadToIPFS(
+          filePath,
+        );
 
         // Construct JSON message payload
-        const payload: any = this.Status.constructJSONPayload(fileData, filePath);
+        const payload: any = this.Status.constructJSONPayload(
+          fileData,
+          filePath,
+          encryptionKey,
+        );
 
         // Send JSON payload to reciever's public key through Status
         const result = await this.Status.sendJsonMessage(
@@ -86,47 +91,34 @@ export class Dawn {
     });
   }
 
-  //Retrieve files sent to me
-  // If connected to status, return inbox
-  public async getInbox(): Promise<any[]> {
-    try {
-      if (this.isConnected) {
-        const inbox: any[] = await this.Status.getCleanInbox();
-        return inbox;
-      }
-      throw new Error('Not Connected to Dawn. Run Dawn.connect() first!');
-    } catch (err) {
-      throw err;
-    }
-  }
-
   // Upload, Encrypt, Add to IPFS for a single file
   /*
   filePath:
   receiverAddress: 
   message:
   */
-  public async encryptUploadToIPFS(filePath: string) {
+  public async encryptUploadToIPFS(filePath: string): Promise<any> {
     try {
+      const encryptionKey: string = this.Files.newEncryptionKey();
+
       // Create stream for reading and encrypting file
       const encryptedStream: any = await this.Files.createEncryptedStream(
         filePath,
+        encryptionKey,
       );
       // Result is an Array[Object] containing `hash`, `path` and `size` from IPFS operation
       const ipfsAddedFiles: any = await this.IPFS.addFileStream(
         encryptedStream,
       );
-      return ipfsAddedFiles[0];
+
+      const fileData = ipfsAddedFiles[0];
+      return { fileData, encryptionKey };
     } catch (err) {
       console.log(err);
     }
   }
 
   // Download and Decrypt a file
-  /*
-  hash:
-  key: 
-  */
   public async downloadDecryptFromIPFS(
     hash: string,
     key: string,
@@ -143,8 +135,25 @@ export class Dawn {
     }
   }
 
+  //Retrieve files sent to me
+  // If connected to status, return inbox
+  public async getInbox(): Promise<any[]> {
+    try {
+      if (this.isConnected) {
+        const inbox: any[] = await this.Status.getCleanInbox();
+        return inbox;
+      }
+      throw new Error('Not Connected to Dawn. Run Dawn.connect() first!');
+    } catch (err) {
+      throw err;
+    }
+  }
+
   // Download a file from your inbox using its Array index or id
-  public async downloadFileFromInbox(locator: number | string, outFileName: string) {
+  public async downloadFileFromInbox(
+    locator: number | string,
+    outFileName: string,
+  ) {
     let file;
     try {
       // If file is located by index
@@ -164,13 +173,10 @@ export class Dawn {
       if (!!!file) {
         throw new Error('File not found in inbox.');
       }
-      console.log('file:', file)
       const { hash, key } = file;
       return await this.downloadDecryptFromIPFS(hash, key, outFileName);
     } catch (err) {
       throw err;
     }
   }
-
-  // Check my messages
 }

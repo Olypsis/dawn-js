@@ -175,7 +175,7 @@ export class Status {
     });
   }
 
-  public constructJSONPayload(fileData: any, filePath: string) {
+  public constructJSONPayload(fileData: any, filePath: string, key: string) {
     const fileName = path.parse(filePath).base
 
     const payload = {
@@ -186,7 +186,7 @@ export class Status {
       fileName,
       hash: fileData.hash,
       id: shortid.generate(),
-      key: 'password',
+      key,
       path: fileData.path,
       size: fileData.size,
     };

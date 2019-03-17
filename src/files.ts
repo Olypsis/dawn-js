@@ -3,21 +3,27 @@ const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
 const progress = require('progress-stream');
+const uuidv4 = require('uuid/v4')
 
+// Constants
 const algorithm = 'aes-256-ctr';
 const password = 'password';
 
 export class Files {
   public currentFileSize: number = 0;
 
-  public async createEncryptedStream(inFilePath: string): Promise<any> {
+  public newEncryptionKey(): string {
+    return uuidv4();
+  }
+
+  public async createEncryptedStream(inFilePath: string, key: string): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         const stats = fs.statSync(inFilePath);
         this.currentFileSize = stats.size;
         const readStream = this.createReadStream(inFilePath);
         const zip = this.createZipStream();
-        const encrypt = this.createEncryptStream();
+        const encrypt = this.createEncryptStream(key);
         const progressStream = this.createProgressStream('encrypt');
         resolve(
           readStream
@@ -37,7 +43,7 @@ export class Files {
     outFilePath: string
 
   ): any {
-    const decrypt = this.createDecryptStream();
+    const decrypt = this.createDecryptStream(key);
     const unzip = this.createUnzipStream();
     const progressStream = this.createProgressStream('decrypt');
     const write = this.createWriteStream(outFilePath);
@@ -50,13 +56,13 @@ export class Files {
   }
 
   // Encrypt File
-  private createEncryptStream = () => {
-    return crypto.createCipher(algorithm, password);
+  private createEncryptStream = (key: string) => {
+    return crypto.createCipher(algorithm, key);
   };
 
   // Decrypt File
-  private createDecryptStream = () => {
-    return crypto.createDecipher(algorithm, password);
+  private createDecryptStream = (key: string) => {
+    return crypto.createDecipher(algorithm, key);
   };
 
   // Readfile as stream and pipe
