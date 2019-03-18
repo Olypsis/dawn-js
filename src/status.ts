@@ -1,5 +1,9 @@
 import { StatusJS, IStatusJS } from '../external/status-js-api';
 import { rejects } from 'assert';
+const _ = require('lodash');
+const shortid = require('shortid');
+const path = require('path');
+
 
 export class Status {
   public instance: IStatusJS;
@@ -7,6 +11,8 @@ export class Status {
   public username?: string;
 
   private rawInbox: any[] = [];
+  private cleanInbox: any[] = [];
+
 
   // Test values
   private testStatusProvider: string = 'http://35.188.163.32:8545';
@@ -15,7 +21,6 @@ export class Status {
 
   constructor() {
     this.instance = new StatusJS();
-    console.log('Status initialized');
   }
 
   public async connect(
@@ -53,11 +58,15 @@ export class Status {
           }
           if (data) {
             const payload = JSON.parse(data.payload);
-            console.log(
-              `Payload Received! Payload: ${JSON.stringify(payload)}`,
-            );
-            this.rawInbox.push(payload);
-            console.log('Inbox Length: ', this.rawInbox.length);
+            // console.log(
+            //   `Payload Received! Payload: ${JSON.stringify(payload)}`,
+            // );
+
+            // Check content type is `content/json`
+            if (payload[1][1] === 'content/json') {
+              // Push nested payload from status message to raw inbox
+              this.rawInbox.push(payload[1][0]);
+            }
           }
         });
         console.log('Listening for messages...');
@@ -100,7 +109,7 @@ export class Status {
                   console.log(
                     `Messages requested from mailserver from ${from} to ${to}.`,
                   );
-                  resolve(true);
+                  resolve(res);
                 }
               },
             );
@@ -113,10 +122,7 @@ export class Status {
     });
   }
 
-  public sendMessage(
-    publicKey: string,
-    message: string,
-  ): Promise<boolean> {
+  public sendMessage(publicKey: string, message: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
       try {
         // Send message to a publickey via status
@@ -130,17 +136,14 @@ export class Status {
               console.log(
                 `sendStatusMessage: Message sent to publickey ${publicKey}.`,
               );
-              console.log(
-                `sendStatusMessage: Message: ${message}.`,
-              );
+              console.log(`sendStatusMessage: Message: ${message}.`);
               resolve(true);
             }
           },
         );
       } catch (err) {
-        // .sendUserMessage() failed
-        console.log('sendStatusMessage:', err);
-        reject(false);
+        console.log(new Error('sendStatusMessage: ' + err));
+        reject(err);
       }
     });
   }
@@ -165,14 +168,42 @@ export class Status {
           },
         );
       } catch (err) {
-        // .sendUserMessage() failed
-        console.log('sendStatusMessage:', err);
+        // .sendJsonMessage() failed
+        console.log('sendJsonMessage:', err);
         reject(false);
       }
     });
   }
 
-  public getRawInbox(): any[] {
-    return this.rawInbox;
+  public constructJSONPayload(fileData: any, filePath: string, key: string) {
+    const fileName = path.parse(filePath).base
+
+    const payload = {
+      date: parseInt(
+        (new Date().getTime() / 1000).toString(),
+        10,
+      ),
+      fileName,
+      hash: fileData.hash,
+      id: shortid.generate(),
+      key,
+      path: fileData.path,
+      size: fileData.size,
+    };
+    return payload;
+  }
+
+  public getCleanInbox(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        const { rawInbox } = this;
+        const dedupedInbox = _.uniqBy(rawInbox, 'id');
+        const sortedInbox = _.orderBy(dedupedInbox, ['date'], ['desc']);
+        this.cleanInbox = sortedInbox;
+        resolve(sortedInbox);
+      } catch (err) {
+        reject(err);
+      }
+    });
   }
 }

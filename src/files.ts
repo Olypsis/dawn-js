@@ -1,24 +1,29 @@
 import { Stream } from 'stream';
-const crypto = require('crypto'),
-  algorithm = 'aes-256-ctr',
-  password = 'password';
+const crypto = require('crypto');
 const fs = require('fs');
 const zlib = require('zlib');
 const progress = require('progress-stream');
+const uuidv4 = require('uuid/v4')
+
+// Constants
+const algorithm = 'aes-256-ctr';
+const password = 'password';
 
 export class Files {
   public currentFileSize: number = 0;
 
-  constructor() {}
+  public newEncryptionKey(): string {
+    return uuidv4();
+  }
 
-  public async createEncryptedStream(inFilePath: string): Promise<any> {
+  public async createEncryptedStream(inFilePath: string, key: string): Promise<any> {
     return new Promise((resolve, reject) => {
       try {
         const stats = fs.statSync(inFilePath);
         this.currentFileSize = stats.size;
         const readStream = this.createReadStream(inFilePath);
         const zip = this.createZipStream();
-        const encrypt = this.createEncryptStream();
+        const encrypt = this.createEncryptStream(key);
         const progressStream = this.createProgressStream('encrypt');
         resolve(
           readStream
@@ -34,16 +39,15 @@ export class Files {
 
   public createDecryptAndWriteStream(
     encryptedStream: any,
-    outFilePath: string,
+    key: string,
+    outFilePath: string
+
   ): any {
-    const decrypt = this.createDecryptStream();
+    const decrypt = this.createDecryptStream(key);
     const unzip = this.createUnzipStream();
     const progressStream = this.createProgressStream('decrypt');
     const write = this.createWriteStream(outFilePath);
-    // console.log("createDecryptAndWriteStream: encryptedStream:", encryptedStream)
-    // console.log("createDecryptAndWriteStream: transformStream:", transformStream)
-    // console.log("createDecryptAndWriteStream: decrypt:", decrypt);
-
+    console.log("createDecryptAndWriteStream", key)
     return encryptedStream
       .pipe(decrypt)
       .pipe(unzip)
@@ -52,13 +56,13 @@ export class Files {
   }
 
   // Encrypt File
-  private createEncryptStream = () => {
-    return crypto.createCipher(algorithm, password);
+  private createEncryptStream = (key: string) => {
+    return crypto.createCipher(algorithm, key);
   };
 
   // Decrypt File
-  private createDecryptStream = () => {
-    return crypto.createDecipher(algorithm, password);
+  private createDecryptStream = (key: string) => {
+    return crypto.createDecipher(algorithm, key);
   };
 
   // Readfile as stream and pipe
@@ -66,9 +70,12 @@ export class Files {
     return fs.createReadStream(filePath);
   };
 
-  // Writefile as a stream
+  // Write file as a stream. Once finished, output to console. 
   public createWriteStream = (filePath: string) => {
-    return fs.createWriteStream(filePath);
+    const stream = fs.createWriteStream(filePath);
+    // On stream close, output to console
+    stream.on('finish', () => { console.log(`File written to ${filePath}`) })
+    return stream
   };
 
   // Zip File
