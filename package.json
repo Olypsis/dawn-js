@@ -17,7 +17,7 @@
         "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
         "docs": "typedoc --out docs src",
         "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
-        "postinstall": "yarn build",
+        "postinstall": "npm build",
         "clean": "rimraf dist"
     },
     "devDependencies": {

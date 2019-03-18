@@ -3,24 +3,33 @@
 [![CircleCI](https://circleci.com/gh/Olypsis/dawn-js/tree/master.svg?style=svg)](https://circleci.com/gh/Olypsis/dawn-js/tree/master)
 
 ## Installation
-
-Clone the Repository
+Clone the Repository and enter it:
 ```sh
 git clone https://github.com/Olypsis/dawn-js.git
+cd dawn-js
 ```
 
-Open the repository and install with yarn:
-
+Install dependencies with npm or yarn:
 ```sh
-cd dawn-js && yarn 
+npm install
+yarn 
+```
+
+Build from source:
+```sh
+npm run build
+yarn run build 
 ```
 
 ## Usage example
-After installing with `yarn`, `cd` into /examples and test it out. :Run `full-transfer-download.js` in the examples folder,
+After installing, run some examples from /examples.
 
+Run `full-transfer-download.js` in the examples folder:
 ```sh
-node examples/dawn-test.js
-```
+node examples/full-transfer-download.js
+``
+This example will show the full process of starting Dawn, encrypting a file, adding it to IPFS, and sending it across Status, as well as downloading, decrypting and writing the file to the filesystem. 
+
 
 Also, run the tests:
 ```sh
