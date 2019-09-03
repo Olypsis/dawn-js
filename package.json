@@ -2,29 +2,33 @@
     "name": "dawn-js",
     "version": "1.0.0",
     "description": "A javascript API to the dawn ecosystem",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/src/index.js",
+    "types": "dist/src/index.d.ts",
     "repository": "https://github.com/Olypsis/dawn-js",
     "license": "MIT",
     "keywords": [],
     "leadMaintainer": "Sharad Shekar <sharadshekar@gmail.com>",
-    "author": "Edmund Miller <edmund.a.miller@gmail.com>",
+    "author": "Sharad Shekar <sharadshekar@gmail.com>",
     "scripts": {
-        "test": "jest --config jestconfig.json",
+        "test": "jest --config  jestconfig.json",
         "build": "tsc",
         "build:watch": "tsc --watch",
         "lint": "tslint -p tsconfig.json",
         "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
         "docs": "typedoc --out docs src",
         "gh-pages": "rimraf docs && npm run docs && gh-pages -d docs",
-        "postinstall": "yarn build"
+        "postinstall": "npm build",
+        "clean": "rimraf dist"
     },
     "devDependencies": {
+        "@babel/runtime-corejs2": "^7.3.4",
         "@semantic-release/github": "^5.2.10",
         "@semantic-release/npm": "^5.1.4",
         "@semantic-release/release-notes-generator": "^7.1.4",
         "@types/jest": "^24.0.9",
         "@types/node": "^11.10.4",
+        "@types/shortid": "^0.0.29",
+        "@types/web3": "^1.0.18",
         "eslint": "^5.15.1",
         "gh-pages": "^2.0.1",
         "jest": "^24.1.0",
@@ -38,5 +42,12 @@
     },
     "files": [
         "dist/**/*"
-    ]
+    ],
+    "dependencies": {
+        "ipfs": "^0.34.4",
+        "progress-stream": "^2.0.0",
+        "shortid": "^2.2.14",
+        "status-js-api": "^1.2.9",
+        "uuid": "^3.3.2"
+    }
 }
